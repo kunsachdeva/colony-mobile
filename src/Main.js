@@ -174,7 +174,11 @@ export default class App extends Component {
   dutchX() {
     this.setState(Object.assign(this.state, { loading: true }))
     this.props.dx(RDN_ADDRESS, WETH_ADDRESS, RND_balance)
-    .then(()=>this.setState(Object.assign(this.state, { loading: false })))
+    .then(()=>{
+      this.setState(Object.assign(this.state, { loading: false }))
+      ToastAndroid.show('Deposited to DutchX', ToastAndroid.LONG);
+
+    })
   }
 
 }
