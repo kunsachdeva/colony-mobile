@@ -169,14 +169,7 @@ export default class App extends Component {
       </View>
       <Image source={{ uri: 'https://cdn.dribbble.com/users/1720999/screenshots/3747912/bikini-bottom-png-ps-small.png' }} style={{ width, height: 300, resizeMode: 'contain', position: 'absolute', bottom: -46, left: 0, zIndex: -1 }} />
     </View>
-  }
-
-  renderPage3() {
-    var { height, width } = Dimensions.get('window');
-    return <View style={{ height, width, alignItems: 'center', paddingHorizontal: 50, paddingVertical: 10, backgroundColor: 'white' }}>
-      <Image source={{ uri: 'https://cdn.dribbble.com/users/1720999/screenshots/3747912/bikini-bottom-png-ps-small.png' }} style={{ width, height: 300, resizeMode: 'contain', position: 'absolute', bottom: -46, left: 0, zIndex: -1 }} />
-    </View>
-  }
+}
 
   dutchX() {
     this.setState(Object.assign(this.state, { loading: true }))
