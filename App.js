@@ -30,7 +30,14 @@ type Props = {};
 export default class App extends Component<Props> {
   constructor() {
     super()
-    this.state = { t: 'fun' }
+  }
+
+  async getBalance(){
+    const { privateKey } = await loader.getAccount(0);
+
+    const wallet = new Wallet(privateKey, provider);
+
+   return ((await wallet.getBalance())*1e-18)
   }
 
   async setupColony(tokenName) {
@@ -47,24 +54,33 @@ export default class App extends Component<Props> {
     // Connect to ColonyNetwork with the adapter!
     const networkClient = new ColonyNetworkClient({ adapter });
     await networkClient.init();
-
     const tokenAddress = await networkClient.createToken({
       name: tokenName,
-      symbol: tokenName.slice(0,3).toUpperCase(),
+      symbol: tokenName.slice(0, 3).toUpperCase(),
     });
 
     const {
       eventData: { colonyId, colonyAddress },
     } = await networkClient.createColony.send({ tokenAddress });
     console.warn('Colony ID: ' + colonyId);
+
+    // Make the colony contract the owner of the token
+    await colonyClient.token.setOwner.send({ owner: colonyClient.contract.address });
+
+    // Add yourself as an admin
+    await colonyClient.authority.setUserRole.send({ user: wallet.address, role: 'ADMIN' });
+
+    // Mint some tokens
+    await colonyClient.mintTokens.send({ amount: new BigNumber(1000) });
+
+
     return { colonyId, colonyAddress };
   }
-
 
   render() {
     return (
       <View>
-        <Main setupColony={this.setupColony}/>
+        <Main setupColony={this.setupColony} getBalance={this.getBalance} />
       </View>
     );
   }
