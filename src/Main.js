@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import {
-  Text, View, Image, Dimensions, TextInput, TouchableOpacity, ToastAndroid, ScrollView
+  Text, View, Image, Dimensions, TextInput, TouchableOpacity, ToastAndroid, ScrollView, Picker
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
+import { RDN_ADDRESS, WETH_ADDRESS } from './constants'
 
 function* statusIterator() {
   yield* ['...CREATING COLONY...', '...SETTING OWNER...', '...MINTING TOKENS...', 'YOU ARE GOOD TO GO 👍'];
@@ -12,7 +13,7 @@ function* statusIterator() {
 export default class App extends Component {
   constructor() {
     super()
-    this.state = { step: 0, status: 'GOOD CHOICE!', page: 0, balance: 0.0 }
+    this.state = { step: 0, status: 'GOOD CHOICE!', page: 0, balance: 0.0, loading: false }
   }
 
   async componentDidMount() {
@@ -23,7 +24,7 @@ export default class App extends Component {
   render() {
     var { height, width } = Dimensions.get('window');
     return <View>
-      {(this.state.page == 0) ? this.renderPage0() : (this.state.page == 1) ? this.renderPage1() : this.renderPage2()}
+      {(this.state.page == 0) ? this.renderPage0() : (this.state.page == 1) ? this.renderPage1() : (this.state.page == 2) ? this.renderPage2() : this.renderPage3()}
     </View>
   }
 
@@ -74,7 +75,9 @@ export default class App extends Component {
   renderPage1() {
     var { height, width } = Dimensions.get('window');
     return <View style={{ height, width, alignItems: 'center', paddingHorizontal: 50, paddingVertical: 10, backgroundColor: 'white' }}>
-      <Image source={{ uri: 'https://cdn.dribbble.com/users/760333/screenshots/4255615/mr_t2.gif' }} style={{ height: 100, width: 100, resizeMode: 'contain', position: 'absolute', left: 10, top: 0 }} />
+      <TouchableOpacity style={{ height: 100, width: 100, position: 'absolute', left: 10, top: 0 }} onPress={()=>{this.setState(Object.assign(this.state, { page: 2 }))}}>
+        <Image source={{ uri: 'https://cdn.dribbble.com/users/760333/screenshots/4255615/mr_t2.gif' }} style={{ height: 100, width: 100, resizeMode: 'contain'}} />
+      </TouchableOpacity>
       <Text style={{ fontSize: 36, fontWeight: '100', letterSpacing: 0, letterSpacing: -4, marginTop: 10, color: 'rgb(90,90,90)' }}>{'Marketing ▼'}</Text>
       <TouchableOpacity style={{ height: 60, width: 45, padding: 10, borderColor: 'gainsboro', borderWidth: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 30, top: 20 }}>
         <Image source={{ uri: 'http://iconshow.me/media/images/ui/ios7-icons/png/256/plus-empty.png' }} style={{ height: 60, width: 60, resizeMode: 'contain', opacity: 0.5 }} />
@@ -123,17 +126,62 @@ export default class App extends Component {
   renderPage2() {
     var { height, width } = Dimensions.get('window');
     return <View style={{ height, width, alignItems: 'center', paddingHorizontal: 50, paddingVertical: 10, backgroundColor: 'white' }}>
-      <Image source={{ uri: 'https://cdn.dribbble.com/users/760333/screenshots/4255615/mr_t2.gif' }} style={{ height: 100, width: 100, resizeMode: 'contain', position: 'absolute', left: 10, top: 0 }} />
-      <Text style={{ fontSize: 36, fontWeight: '100', letterSpacing: 0, letterSpacing: -4, marginTop: 10, color: 'rgb(90,90,90)' }}>{'Marketing ▼'}</Text>
+      <Image source={{ uri: 'https://static.thenounproject.com/png/390380-200.png' }} style={{ height: 100, width: 50, resizeMode: 'contain', position: 'absolute', left: 10, top: 0 }} />
+      <Text style={{ fontSize: 36, fontWeight: '100', letterSpacing: 0, marginTop: 10, color: 'rgb(90,90,90)' }}>{'Wallet'}</Text>
       <TouchableOpacity style={{ height: 60, width: 45, padding: 10, borderColor: 'gainsboro', borderWidth: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 30, top: 20 }}>
         <Image source={{ uri: 'http://iconshow.me/media/images/ui/ios7-icons/png/256/plus-empty.png' }} style={{ height: 60, width: 60, resizeMode: 'contain', opacity: 0.5 }} />
       </TouchableOpacity>
-      <View style={{ height: 2, width: width - 30, backgroundColor: 'gainsboro', marginTop: 25 }}></View>
-      <ScrollView style={{ width }} horizontal={true}>
-        {this.renderTaskItem('#8BC34A', ['Write article ✒️ about Mr. T', 'Use conditioner before shampoo'])}
-        {this.renderTaskItem('#4CAF50', ['Super 🕶️ secret task', 'Send new posters 🖼️'])}
-      </ScrollView>
+      <View style={{ height: 2, width: width - 30, backgroundColor: 'gainsboro', marginVertical: 25 }}></View>
+      <Text style={{ width: width - 30, fontSize: 16, fontWeight: 'bold' }}>Balances</Text>
+      <View style={{ width: width - 30, marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text>{'ETH  ' + this.state.balance}</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity style={{ height: 30, width: 90, backgroundColor: 'grey', position: 'relative', top: -5, justifyContent: 'space-evenly', alignItems: 'center', borderRadius: 5, flexDirection: 'row' }}>
+            <Image source={{ uri: 'https://gnosis.pm/assets/img/index/gnosis-apps-slider/dutchx_thumb_mgn.png' }} style={{ height: 20, width: 20, resizeMode: 'contain' }} />
+            <Text style={{ color: 'white' }}>DutchX</Text>
+          </TouchableOpacity>
+          <Picker
+            selectedValue={'RDN'}
+            style={{ height: 50, width: 110, position: 'relative', top: -15, left: 10 }}>
+            <Picker.Item label="WETH" value="WETH" />
+            <Picker.Item label="RDN" value="RDN" />
+          </Picker>
+        </View>
+      </View>
+      <View style={{ width: width - 30, marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text>{'MRT  ' + '3.003'}</Text>
+      </View>
+      <View style={{ width: width - 30, marginVertical: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text>{'RDN  ' + this.state.RND_balance}</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity onPress={this.dutchX.bind(this)} style={{ height: 30, width: 90, backgroundColor: (this.state.loading) ? 'darkgrey' : 'grey', position: 'relative', top: -5, justifyContent: 'space-evenly', alignItems: 'center', borderRadius: 5, flexDirection: 'row' }}>
+            {(this.state.loading) ? <Image source={require('./source.gif')} style={{ height: 20, width: 20, resizeMode: 'contain' }} /> : <Image source={{ uri: 'https://gnosis.pm/assets/img/index/gnosis-apps-slider/dutchx_thumb_mgn.png' }} style={{ height: 20, width: 20, resizeMode: 'contain' }} />}
+            <Text style={{ color: 'white' }}>DutchX</Text>
+          </TouchableOpacity>
+          <Picker
+            selectedValue={'WETH'}
+            style={{ height: 50, width: 110, position: 'relative', top: -15, left: 10 }}>
+            <Picker.Item label="WETH" value="WETH" />
+            <Picker.Item label="GNO" value="GNO" />
+            <Picker.Item label="RDN" value="RDN" />
+          </Picker>
+        </View>
+      </View>
       <Image source={{ uri: 'https://cdn.dribbble.com/users/1720999/screenshots/3747912/bikini-bottom-png-ps-small.png' }} style={{ width, height: 300, resizeMode: 'contain', position: 'absolute', bottom: -46, left: 0, zIndex: -1 }} />
     </View>
   }
+
+  renderPage3() {
+    var { height, width } = Dimensions.get('window');
+    return <View style={{ height, width, alignItems: 'center', paddingHorizontal: 50, paddingVertical: 10, backgroundColor: 'white' }}>
+      <Image source={{ uri: 'https://cdn.dribbble.com/users/1720999/screenshots/3747912/bikini-bottom-png-ps-small.png' }} style={{ width, height: 300, resizeMode: 'contain', position: 'absolute', bottom: -46, left: 0, zIndex: -1 }} />
+    </View>
+  }
+
+  dutchX() {
+    this.setState(Object.assign(this.state, { loading: true }))
+    this.props.dx(RDN_ADDRESS, WETH_ADDRESS, RND_balance)
+    .then(()=>this.setState(Object.assign(this.state, { loading: false })))
+  }
+
 }
